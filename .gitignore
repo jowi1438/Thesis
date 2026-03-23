@@ -21,3 +21,5 @@ __pycache__/
 
 # Conda
 *.egg-info/
+
+!Sentinel_1/ost/s1/Example_Fields/ 
