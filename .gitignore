@@ -23,3 +23,5 @@ __pycache__/
 *.egg-info/
 
 !Sentinel_1/ost/s1/Example_Fields/ 
+!Sentinel_1/ost/s1/Example_Fields/*.parquet 
+!Sentinel_2/
