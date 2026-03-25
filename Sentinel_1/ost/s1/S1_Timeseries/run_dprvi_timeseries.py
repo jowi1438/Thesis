@@ -9,11 +9,11 @@ Includes automatic retry: failed bursts are reset and reprocessed up to
 --max_retries times.
 
 Usage:
-  python run_dprvi_timseries.py \
+  python run_dprvi_timeseries.py \
     --scene_dir "/home/johan/OST_Search_Download/Download_S1_SLC/download/SAR/SLC/2024" \
     --out_root "/home/johan/OST_processing/out_timeseries" \
     --temp_dir "/home/johan/OST_processing/tmp" \
-    --aoi "/home/johan/OpenSarToolkit/ost/s1/preprocessed_field_geometries_skane_filtered.parquet"
+    --aoi "/home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet"
 """
 
 import argparse, json, sys, re

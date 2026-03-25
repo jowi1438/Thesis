@@ -15,7 +15,7 @@ Usage:
     --temp_dir "/home/johan/OST_processing/tmp" \
     --to_db \
     --remove_speckle \
-    --aoi "/home/johan/OpenSarToolkit/ost/s1/preprocessed_field_geometries_skane_filtered.parquet"
+    --aoi "/home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet"
 """
 
 import argparse, json, sys, re

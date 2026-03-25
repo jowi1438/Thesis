@@ -13,11 +13,12 @@ import numpy as np
 """
 run with:
 python initialize_dataset.py \
-    --fields_file /home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane_filtered.parquet \
+    --fields_file /home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet \
     --dataset_path /home/johan/Thesis/Sentinel_1/ost/s1/S1_Timeseries/dataset \
     --id_field field_id \
-    --crs EPSG:3006 
+    --crs EPSG:3006
 """
+
 
 # Creates folder structure, auxilliary data for each field (mask, polygon, bbox)
 if __name__ == "__main__":
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_path', type=str, required=True)
     parser.add_argument('--id_field', type=str, required=False, default=None)
     parser.add_argument('--crs', type=str, required=False, default='EPSG:3006')
+    parser.add_argument('--negative_buffer', type=int, default=-5, required=False)
     args = parser.parse_args()
     fields_file, dataset_path = Path(args.fields_file), Path(args.dataset_path)
     out_path = dataset_path / 'data'
@@ -47,6 +49,7 @@ if __name__ == "__main__":
 
         # Extracting bounding box of field
         polygon = field.geometry
+        polygon_buffered = polygon.buffer(args.negative_buffer)
 
         gdf_polygon = gpd.GeoDataFrame({'geometry': [polygon]}, crs=args.crs)
         gdf_polygon.to_parquet(field_path / f'polygon_{field_id}.parquet')
@@ -84,7 +87,7 @@ if __name__ == "__main__":
 
                 # Check if cell is completely within original polygon
                 # A cell is completely covered if it's within the polygon
-                mask[i, j] = polygon.contains(cell)
+                mask[i, j] = polygon_buffered.contains(cell)
 
         # Convert boolean mask to uint8 (0 and 1)
         mask_uint8 = mask.astype(np.uint8)

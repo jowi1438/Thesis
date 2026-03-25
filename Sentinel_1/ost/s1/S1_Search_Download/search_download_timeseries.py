@@ -17,15 +17,12 @@ import pylab
 fields = gpd.read_parquet("/home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane.parquet").to_crs(4326)
 
 # load skane boundary
-skane = gpd.read_file("/home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/skane_bound/skane_boundary.shp").to_crs(4326)
+skane = gpd.read_file("/home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/examplefields.shp").to_crs(4326)
 
 # keep only fields within the boundary
 fields_filtered = gpd.clip(fields, skane)
 fields_filtered = fields_filtered.reset_index(drop=True)
-fields_filtered.to_parquet("/home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane_filtered.parquet")
-
-# save back as parquet, preserving all original columns
-fields_filtered.to_parquet("/home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane_filtered.parquet")
+fields_filtered.to_parquet("/home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet")
 
 print(f"Original: {len(fields)} fields")
 print(f"Filtered: {len(fields_filtered)} fields")
@@ -43,8 +40,8 @@ hull_gdf.to_file("/home/johan/Thesis/Sentinel_1/ost/s1/convex_hull.shp")
 # Time of interest
 #----------------------------
 # we set only the start date to today - 30 days
-start = '2024-08-01'
-end = '2024-08-12'
+start = '2024-06-01'
+end = '2024-09-01'
 
 #----------------------------
 # Project folder
@@ -151,8 +148,10 @@ ost_s1.refine_inventory()
 
 pylab.rcParams['figure.figsize'] = (19, 19)
 
+#Filter inventory for a specific product key, e.g. 'ASCENDING_VVVH', relative orbit (track) 73 and plot the inventory for that specific product key and track
 key = 'ASCENDING_VVVH'
-ost_s1.refined_inventory_dict[key]
+ascending_all = ost_s1.refined_inventory_dict[key]
 ost_s1.plot_inventory(ost_s1.refined_inventory_dict[key], 0.1)
+ascending_t73 = ascending_all[ascending_all['relativeorbit'] == 73].reset_index(drop=True)
 
-ost_s1.download(ost_s1.refined_inventory_dict[key], concurrent=10)
+ost_s1.download(ascending_t73, concurrent=10)

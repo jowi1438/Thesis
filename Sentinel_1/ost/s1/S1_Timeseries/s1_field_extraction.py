@@ -9,15 +9,20 @@ to the field mask grid:
     s1_pol_<date>_<field_id>.tif      3 bands: H, A, Alpha
     s1_dprvi_<date>_<field_id>.tif    1 band:  DpRVI
 
+A single metadata.json is written to the dataset root listing all
+unique acquisition timestamps across all products as TIMESTAMPS.
+
 Usage:
     python s1_field_extraction.py \
-        --fields_file /home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane_filtered.parquet \
+        --fields_file /home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet \
         --dataset_path /home/johan/Thesis/Sentinel_1/ost/s1/S1_Timeseries/dataset \
-        --s1_root /home/johan/Thesis/Sentinel_1/ost/s1/S1_Timeseries/out_timeseries \
+        --s1_root /home/johan/OST_processing/out_timeseries \
         --id_field field_id
 """
 
 import argparse
+import json
+from datetime import datetime
 from pathlib import Path
 from tqdm import tqdm
 import numpy as np
@@ -175,6 +180,33 @@ def discover_dated_mosaics(merged_dir, product_key):
 
 
 # ---------------------------------------------------------------------------
+# Metadata
+# ---------------------------------------------------------------------------
+
+def generate_metadata_json(out_path, product_mosaics):
+    """
+    Write a single metadata.json to the dataset root containing all
+    unique acquisition timestamps across all products as TIMESTAMPS.
+    """
+    all_dates = set()
+    for dated_mosaics in product_mosaics.values():
+        for date_str, _ in dated_mosaics:
+            all_dates.add(date_str)
+
+    timestamps = sorted(
+        datetime.strptime(d, "%Y%m%d").strftime("%Y-%m-%d")
+        for d in all_dates
+    )
+
+    metadata = {"TIMESTAMPS": timestamps}
+
+    with open(out_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    print(f"[INFO] Metadata written to {out_path} ({len(timestamps)} timestamps)")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -215,6 +247,12 @@ if __name__ == "__main__":
     if not product_mosaics:
         raise RuntimeError("No dated mosaics found for any product. "
                            "Run the S1 processing scripts first.")
+
+    # Write single metadata.json to dataset root
+    generate_metadata_json(
+        out_path=dataset_path / "metadata.json",
+        product_mosaics=product_mosaics,
+    )
 
     fields = gpd.read_parquet(args.fields_file).to_crs(args.crs)
 
