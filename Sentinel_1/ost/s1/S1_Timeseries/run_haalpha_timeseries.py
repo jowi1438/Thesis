@@ -3,7 +3,6 @@
 """
 Sentinel-1 SLC → H-A-Alpha decomposition
 Per-burst → GeoTIFF → SWEREF99 TM 10m → per-scene mosaic → per-date mosaic.
-
 Processes ALL zip files in the given scene directory.
 Includes automatic retry: failed bursts are reset and reprocessed up to
 --max_retries times.
@@ -16,10 +15,15 @@ Usage:
     --aoi "/home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet"
 """
 
-import argparse, json, sys, re
+import argparse
+import json
+import sys
+import re
 from pathlib import Path
 from itertools import groupby
 import pandas as pd
+import rasterio
+import numpy as np
 
 from ost.s1.s1scene import Sentinel1Scene as S1Scene
 from burst_to_ard_FIXED import burst_to_ard
@@ -28,6 +32,21 @@ from processing_utils import *
 PRODUCT_KEY = "pol"
 FINAL_PATTERN = "*pol_SWEREF99TM_10m.tif"
 MARKER = ".pol.processed"
+
+
+def normalize_entropy_band(tif_path):
+    """
+    Normalize Entropy band (band 0) from 0-100 to 0-1 in-place.
+    Anisotropy (band 1) and Alpha (band 2) stay unchanged.
+    """
+    try:
+        with rasterio.open(tif_path, 'r+') as src:
+            entropy = src.read(1).astype(np.float32)
+            entropy_normalized = entropy / 100.0
+            src.write(entropy_normalized, 1)
+        print(f"    ✓ Entropy normalized (0-100 → 0-1)")
+    except Exception as e:
+        print(f"    ⚠ Could not normalize entropy: {e}")
 
 
 def extract_date_from_scene_id(scene_id: str) -> str:
@@ -88,6 +107,10 @@ def process_bursts(burst_gdf, scene_id, scene_zip, out_root, config_file):
                 pol_tif = out_dir / f"{prefix}_pol.tif"
                 dim_to_tif(Path(out_pol), pol_tif)
                 reproject_to_sweref(pol_tif, pol_final)
+                
+                # NORMALIZE ENTROPY BAND (0-100 → 0-1)
+                normalize_entropy_band(pol_final)
+                
                 final_tifs.append(str(pol_final))
                 print(f"    → {pol_final.name}")
             elif err:
