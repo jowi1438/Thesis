@@ -8,7 +8,7 @@ Copernicus Dataspace for Sentinel-1 SLC scenes, refines the inventory to
 a specific ascending track, and downloads the scenes via ASF.
 
 Usage:
-    python search_download_timeseries.py \
+    python search_download_timeseries_args.py \
         --fields_file /home/johan/Thesis/Sentinel_1/ost/s1/S1_Search_Download/preprocessed_field_geometries_skane.parquet \
         --aoi_shp     /home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/examplefields.shp \
         --out_parquet /home/johan/Thesis/Sentinel_1/ost/s1/Example_Fields/example_fields.parquet \
@@ -87,7 +87,7 @@ def main():
     print(f"Filtered: {len(fields_filtered)} fields")
 
     # convex hull of filtered fields → used as AOI for S1 search
-    hull_geom = fields_filtered.geometry.union_all().convex_hull
+    hull_geom = fields_filtered.geometry.unary_union.convex_hull
     aoi       = hull_geom.wkt
     aoi_enc   = quote(aoi)
 
