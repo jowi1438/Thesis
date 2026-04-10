@@ -259,7 +259,7 @@ def query_dataspace(query, access_token):
     # ------------------------------------------------------------------
     parsed = urlparse(query)
     params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
-
+    
     geometry     = params.get('geometry', None)
     start_date   = params.get('startDate', '2014-10-01T00:00:00Z')
     end_date     = params.get('completionDate', '2099-01-01T23:59:59Z')
