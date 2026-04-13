@@ -65,7 +65,7 @@ def _remove_outside_aoi(aoi_gdf, inventory_df):
     cols = inventory_df.columns
 
     # 1) get only intersecting footprints (double, since we do this before)
-    inventory_df = gpd.sjoin(inventory_df, aoi_gdf, how="left", op="intersects")
+    inventory_df = gpd.sjoin(inventory_df, aoi_gdf, how="left", predicate="intersects")
 
     # if aoi  gdf has an id field we need to rename the changed id_left field
     if "id_left" in inventory_df.columns:

@@ -24,6 +24,7 @@ from shapely.geometry import Point, Polygon, mapping, shape
 from shapely.errors import ShapelyError
 from fiona import collection
 from fiona.crs import from_epsg
+import geodatasets
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def aoi_to_wkt(aoi):
         # see if aoi is an ISO3 country code
         try:
             # let's check if it is a shapely readable WKT
-            world = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+            world = gpd.read_file(geodatasets.get_path("naturalearth.land"))
             aoi_wkt = world["geometry"][world["iso_a3"] == aoi].values[0].wkt
 
         except IndexError:
@@ -466,7 +467,7 @@ def plot_inventory(aoi, inventory_df, transparency=0.05, annotate=False):
     import matplotlib.pyplot as plt
 
     # load world borders for background
-    world = gpd.read_file(gpd.datasets.get_path("naturalearth_lowres"))
+    world = gpd.read_file(geodatasets.get_path("naturalearth.land"))
 
     # do the import of aoi as gdf
     aoi_gdf = wkt_to_gdf(aoi)
