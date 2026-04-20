@@ -16,8 +16,14 @@ Returns 8 values: (bid, date, out_bs, out_ls, out_pol, out_coh, out_dprvi, error
 
 import json
 import logging
+import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
+
+# Add OST to path (relative to script location)
+script_dir = Path(__file__).parent.absolute()
+ost_path = script_dir.parent.parent.parent  # Go up 3 levels to /home/johan/Thesis/Sentinel_1
+sys.path.insert(0, str(ost_path))
 
 import numpy as np
 import rasterio

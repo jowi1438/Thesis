@@ -21,6 +21,11 @@ from pathlib import Path
 from itertools import groupby
 import pandas as pd
 
+# Add OST to path (relative to script location)
+script_dir = Path(__file__).parent.absolute()
+ost_path = script_dir.parent.parent.parent  # Go up 3 levels to /home/johan/Thesis/Sentinel_1
+sys.path.insert(0, str(ost_path))
+
 from ost.s1.s1scene import Sentinel1Scene as S1Scene
 from burst_to_ard_FIXED import burst_to_ard
 from processing_utils import *

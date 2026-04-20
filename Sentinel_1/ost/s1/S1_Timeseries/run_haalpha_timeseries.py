@@ -63,6 +63,11 @@ import re
 from pathlib import Path
 from itertools import groupby
 
+# Add OST to path (relative to script location)
+script_dir = Path(__file__).parent.absolute()
+ost_path = script_dir.parent.parent.parent  # Go up 3 levels to /home/johan/Thesis/Sentinel_1
+sys.path.insert(0, str(ost_path))
+
 import numpy as np
 import pandas as pd
 import rasterio
